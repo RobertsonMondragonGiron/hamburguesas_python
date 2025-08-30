@@ -1,3 +1,7 @@
+<?php
+// ===== ACTUALIZACIÓN: header.php (con reportes) =====
+?>
+<!-- Separador para header.php actualizado -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -12,13 +16,19 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
     <a class="navbar-brand" href="index.php">🍔 Hamburguesas Ferxxo</a>
-    <div>
-      <a href="clientes.php" class="btn btn-outline-light btn-sm">Clientes</a>
-      <a href="empleados.php" class="btn btn-outline-light btn-sm">Empleados</a>
-      <a href="tipo_hamburguesa.php" class="btn btn-outline-light btn-sm">Hamburguesas</a>
-      <a href="productos.php" class="btn btn-outline-light btn-sm">Productos</a>
-      <a href="ventas.php" class="btn btn-outline-light btn-sm">Ventas</a>
-      <a href="nueva_venta.php" class="btn btn-warning btn-sm">➕ Nueva Venta</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="navbar-nav ms-auto">
+        <a href="clientes.php" class="btn btn-outline-light btn-sm me-1">👤 Clientes</a>
+        <a href="empleados.php" class="btn btn-outline-light btn-sm me-1">👥 Empleados</a>
+        <a href="tipo_hamburguesa.php" class="btn btn-outline-light btn-sm me-1">🍔 Hamburguesas</a>
+        <a href="productos.php" class="btn btn-outline-light btn-sm me-1">📦 Productos</a>
+        <a href="ventas.php" class="btn btn-outline-light btn-sm me-1">📋 Ventas</a>
+        <a href="reporte_ventas.php" class="btn btn-outline-info btn-sm me-1">📊 Reportes</a>
+        <a href="nueva_venta.php" class="btn btn-warning btn-sm">➕ Nueva Venta</a>
+      </div>
     </div>
   </div>
 </nav>

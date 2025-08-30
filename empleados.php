@@ -1,3 +1,7 @@
+<?php
+// ===== CORRECCIÓN: empleados.php (error tipográfico) =====
+?>
+<!-- Separador para empleados.php corregido -->
 <?php include("config/db.php"); ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -11,8 +15,6 @@
 <?php include("header.php"); ?>
 
 <h2>👤 Empleados</h2>
-
-<?php include("footer.php"); ?>
 
     <a href="nuevo_empleado.php" class="btn btn-success mb-3">➕ Nuevo Empleado</a>
     <table class="table table-bordered table-hover">
@@ -37,7 +39,7 @@
                     <td>".$row['cargo']."</td>
                     <td>
                         <a href='editar_empleado.php?id=".$row['id_empleado']."' class='btn btn-sm btn-primary'>✏️ Editar</a>
-                        <a href='empleados.php?eliminar=".$row['id_empleado']."' class='btn btn-sm btn-danger' onclick=\"return confirm('¿Eliminar empleadp?')\">🗑️ Eliminar</a>
+                        <a href='empleados.php?eliminar=".$row['id_empleado']."' class='btn btn-sm btn-danger' onclick=\"return confirm('¿Eliminar empleado?')\">🗑️ Eliminar</a>
                     </td>
                   </tr>";
         }
@@ -48,7 +50,7 @@
 </div>
 
 <?php
-// Eliminar cliente
+// Eliminar empleado (corregido el comentario)
 if(isset($_GET['eliminar'])){
     $id = $_GET['eliminar'];
     $conn->query("DELETE FROM empleados WHERE id_empleado=$id");
