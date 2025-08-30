@@ -1,0 +1,16 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1, h2 {
+  font-weight: bold;
+  color: #d35400;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.btn {
+  border-radius: 8px;
+}
