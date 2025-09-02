@@ -28,7 +28,7 @@
             <input type="text" name="cargo" class="form-control" required>
         </div>
         <button type="submit" name="guardar" class="btn btn-success">Guardar</button>
-        <a href="empleados.php" class="btn btn-secondary">Cancelar</a>
+        <a href="empleados.php" class="btn btn-secondary">Cancelar/Volver</a>
     </form>
 
     <?php

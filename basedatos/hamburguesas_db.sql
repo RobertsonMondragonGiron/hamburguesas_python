@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 30-08-2025 a las 04:51:06
+-- Tiempo de generación: 02-09-2025 a las 02:58:42
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -39,9 +39,7 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`id_cliente`, `nombre`, `direccion`, `telefono`) VALUES
-(1, 'Robertson Mondragón', 'Cll 26C #7-20', '3026805303'),
-(2, 'Juan Pérez', 'Cll 33 #36-98', '2356266'),
-(3, 'Ana Gómez', 'Cra 45 #12-50', '3104567890');
+(6, 'robertson', 'cll 26c7 2oeste 46', '3026805303');
 
 -- --------------------------------------------------------
 
@@ -62,9 +60,10 @@ CREATE TABLE `detalle_ventas` (
 --
 
 INSERT INTO `detalle_ventas` (`id_detalle`, `venta_id`, `hamburguesa_id`, `cantidad`, `subtotal`) VALUES
-(1, 1, 1, 2, 16000.00),
-(2, 2, 3, 1, 15000.00),
-(3, 2, 2, 1, 10000.00);
+(5, 4, 7, 1, 8000.00),
+(6, 5, 7, 1, 8000.00),
+(7, 6, 7, 1, 8000.00),
+(8, 7, 8, 1, 16000.00);
 
 -- --------------------------------------------------------
 
@@ -84,9 +83,7 @@ CREATE TABLE `empleados` (
 --
 
 INSERT INTO `empleados` (`id_empleado`, `nombre`, `apellido`, `cargo`) VALUES
-(1, 'Carlos', 'Ramírez', 'Cajero'),
-(2, 'Laura', 'Martínez', 'Mesera'),
-(3, 'Andrés', 'García', 'Cocinero');
+(4, 'monica', 'mondragon', 'cajero');
 
 -- --------------------------------------------------------
 
@@ -106,18 +103,21 @@ CREATE TABLE `hamburguesa_producto` (
 --
 
 INSERT INTO `hamburguesa_producto` (`id`, `hamburguesa_id`, `producto_id`, `cantidad`) VALUES
-(1, 1, 1, 1),
-(2, 1, 3, 1),
-(3, 1, 4, 1),
-(4, 2, 1, 1),
-(5, 2, 3, 1),
-(6, 2, 2, 1),
-(7, 2, 4, 1),
-(8, 3, 1, 1),
-(9, 3, 3, 2),
-(10, 3, 2, 1),
-(11, 3, 4, 1),
-(12, 3, 5, 1);
+(17, 6, 9, 1),
+(18, 6, 10, 1),
+(19, 6, 7, 1),
+(20, 7, 9, 1),
+(21, 7, 10, 1),
+(22, 7, 7, 1),
+(23, 7, 8, 1),
+(25, 8, 7, 2),
+(26, 8, 8, 4),
+(27, 8, 9, 2),
+(28, 8, 10, 2),
+(29, 9, 7, 4),
+(30, 9, 8, 8),
+(31, 9, 9, 6),
+(32, 9, 10, 4);
 
 -- --------------------------------------------------------
 
@@ -136,12 +136,10 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `nombre`, `stock`) VALUES
-(1, 'Pan', 100),
-(2, 'Queso', 80),
-(3, 'Carne', 120),
-(4, 'Lechuga', 60),
-(5, 'Tomate', 50),
-(6, 'Papas Fritas', 200);
+(7, 'Pan', 95),
+(8, 'Queso', 38),
+(9, 'Carne', 55),
+(10, 'Lechuga', 40);
 
 -- --------------------------------------------------------
 
@@ -160,10 +158,10 @@ CREATE TABLE `tipo_hamburguesa` (
 --
 
 INSERT INTO `tipo_hamburguesa` (`id_hamburguesa`, `nombre`, `precio`) VALUES
-(1, 'Hamburguesa Sencilla', 5000.00),
-(2, 'Hamburguesa con Queso', 8000.00),
-(3, 'Hamburguesa Doble', 16000.00),
-(4, 'Hamburguesa Volqueta', 23000.00);
+(6, 'Hamburguesa Sencilla', 5000.00),
+(7, 'Hamburguesa con Queso', 8000.00),
+(8, 'Hamburguesa Doble', 16000.00),
+(9, 'Hamburguesa Volqueta', 32000.00);
 
 -- --------------------------------------------------------
 
@@ -184,8 +182,10 @@ CREATE TABLE `ventas` (
 --
 
 INSERT INTO `ventas` (`id_venta`, `cliente_id`, `empleado_id`, `fecha`, `valor_total`) VALUES
-(1, 2, 1, '2025-08-29 20:51:32', 16000.00),
-(2, 3, 2, '2025-08-29 20:51:32', 25000.00);
+(4, 6, 4, '2025-09-01 18:42:11', 8000.00),
+(5, 6, 4, '2025-09-01 18:56:58', 8000.00),
+(6, 6, 4, '2025-09-01 19:54:16', 8000.00),
+(7, 6, 4, '2025-09-01 19:54:44', 16000.00);
 
 --
 -- Índices para tablas volcadas
@@ -247,43 +247,43 @@ ALTER TABLE `ventas`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_ventas`
 --
 ALTER TABLE `detalle_ventas`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `empleados`
 --
 ALTER TABLE `empleados`
-  MODIFY `id_empleado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_empleado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `hamburguesa_producto`
 --
 ALTER TABLE `hamburguesa_producto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tipo_hamburguesa`
 --
 ALTER TABLE `tipo_hamburguesa`
-  MODIFY `id_hamburguesa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_hamburguesa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Restricciones para tablas volcadas

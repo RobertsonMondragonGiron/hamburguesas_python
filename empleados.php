@@ -1,7 +1,7 @@
 <?php
-// ===== CORRECCIÓN: empleados.php (error tipográfico) =====
+
 ?>
-<!-- Separador para empleados.php corregido -->
+
 <?php include("config/db.php"); ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -20,7 +20,7 @@
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
+                
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Cargo</th>
@@ -33,7 +33,7 @@
         $result = $conn->query($sql);
         while($row = $result->fetch_assoc()){
             echo "<tr>
-                    <td>".$row['id_empleado']."</td>
+                    
                     <td>".$row['nombre']."</td>
                     <td>".$row['apellido']."</td>
                     <td>".$row['cargo']."</td>

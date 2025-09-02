@@ -7,7 +7,7 @@
 <table class="table table-striped table-hover bg-white shadow-sm">
   <thead class="table-dark">
     <tr>
-      <th>ID</th>
+      
       <th>Nombre</th>
       <th>Precio</th>
       <th>Acciones</th>
@@ -18,7 +18,7 @@
     $res = $conn->query("SELECT * FROM tipo_hamburguesa ORDER BY id_hamburguesa");
     while($r = $res->fetch_assoc()){
         echo "<tr>
-                <td>{$r['id_hamburguesa']}</td>
+                
                 <td>{$r['nombre']}</td>
                 <td>$".number_format($r['precio'],2)."</td>
                 <td>

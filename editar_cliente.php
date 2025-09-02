@@ -38,7 +38,8 @@ if(isset($_POST['guardar'])){
         <input type="text" name="telefono" class="form-control" value="<?= $cliente['telefono'] ?>">
     </div>
     <button name="guardar" class="btn btn-primary">Actualizar</button>
-    <a href="clientes.php" class="btn btn-secondary">Cancelar</a>
+    <a href="clientes.php" class="btn btn-secondary">Cancelar/Volver</a>
+    
 </form>
 
 <?php include("footer.php"); ?>

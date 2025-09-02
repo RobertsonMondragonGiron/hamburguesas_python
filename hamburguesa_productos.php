@@ -18,7 +18,7 @@ if(isset($_POST['agregar_ingrediente'])){
     $check = $conn->query("SELECT id, cantidad FROM hamburguesa_producto WHERE hamburguesa_id = $hamburguesa_id AND producto_id = $producto_id");
     
     if($check->num_rows > 0){
-        // Ya existe: actualizar la cantidad (SUMAR al existente)
+        // Ya existe: actualizar la cantidad
         $existing = $check->fetch_assoc();
         $nueva_cantidad = $existing['cantidad'] + $cantidad;
         
@@ -32,7 +32,7 @@ if(isset($_POST['agregar_ingrediente'])){
                 Cantidad anterior: <strong>{$existing['cantidad']}</strong> → Nueva cantidad: <strong>$nueva_cantidad</strong>
               </div>";
     } else {
-        // No existe: agregarlo como nuevo ingrediente
+        // No existe
         $stmt = $conn->prepare("INSERT INTO hamburguesa_producto (hamburguesa_id, producto_id, cantidad) VALUES (?, ?, ?)");
         $stmt->bind_param("iii", $hamburguesa_id, $producto_id, $cantidad);
         $stmt->execute();
@@ -71,7 +71,7 @@ if(isset($_GET['eliminar_ingrediente'])){
 }
 ?>
 
-<!-- SECCIÓN 1: Agregar/Actualizar Ingredientes -->
+<!--Agregar/Actualizar Ingredientes -->
 <div class="row mb-4">
     <div class="col-md-8">
         <div class="card">
@@ -116,43 +116,9 @@ if(isset($_GET['eliminar_ingrediente'])){
         </div>
     </div>
     
-    <!-- SECCIÓN 2: Reabastecer Stock -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">📦 Reabastecer Stock</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Producto</label>
-                        <select name="producto_id_stock" class="form-select" required>
-                            <option value="">-- Seleccionar --</option>
-                            <?php
-                            $productos_stock = $conn->query("SELECT id_producto, nombre, stock FROM productos ORDER BY stock ASC, nombre");
-                            while($p = $productos_stock->fetch_assoc()){
-                                $urgente = $p['stock'] <= 5 ? ' 🔴 ¡URGENTE!' : ($p['stock'] <= 10 ? ' ⚠️ Bajo' : '');
-                                echo "<option value='{$p['id_producto']}'>
-                                        {$p['nombre']} ({$p['stock']})$urgente
-                                      </option>";
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Cantidad a Agregar</label>
-                        <input type="number" name="cantidad_restock" class="form-control" min="1" value="50" required>
-                    </div>
-                    <button name="reabastecer_stock" class="btn btn-warning w-100">
-                        📦 Reabastecer
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+  
 
-<!-- SECCIÓN 3: Ingredientes Actuales -->
+<!-- Ingredientes Actuales -->
 <div class="card">
     <div class="card-header bg-secondary text-white">
         <h5 class="mb-0">🍔 Ingredientes de "<?= $hamburguesa['nombre'] ?>"</h5>
@@ -226,7 +192,7 @@ if(isset($_GET['eliminar_ingrediente'])){
 
 <div class="mt-4">
     <a href="tipo_hamburguesa.php" class="btn btn-secondary">⬅️ Volver a Hamburguesas</a>
-    <a href="productos.php" class="btn btn-info">📦 Gestionar Productos</a>
+    
 </div>
 
 <?php include("footer.php"); ?>

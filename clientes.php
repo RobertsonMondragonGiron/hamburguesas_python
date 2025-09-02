@@ -62,7 +62,7 @@ if(isset($_GET['eliminar'])){
 <table class="table table-bordered table-hover">
     <thead class="table-dark">
         <tr>
-            <th>ID</th>
+            
             <th>Nombre</th>
             <th>Dirección</th>
             <th>Teléfono</th>
@@ -88,7 +88,7 @@ if(isset($_GET['eliminar'])){
         $ultima_compra = $row['ultima_compra'] ? date('d/m/Y', strtotime($row['ultima_compra'])) : 'Nunca';
         
         echo "<tr>
-                <td>".$row['id_cliente']."</td>
+                
                 <td><strong>".$row['nombre']."</strong></td>
                 <td>".$row['direccion']."</td>
                 <td>".$row['telefono']."</td>

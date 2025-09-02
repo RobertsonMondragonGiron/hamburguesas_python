@@ -30,7 +30,7 @@ if(isset($_POST['guardar'])){
     <input type="number" step="0.01" name="precio" class="form-control" value="<?= $hamb['precio'] ?>" required>
   </div>
   <button name="guardar" class="btn btn-primary">Actualizar</button>
-  <a href="tipo_hamburguesa.php" class="btn btn-secondary">Cancelar</a>
+  <a href="tipo_hamburguesa.php" class="btn btn-secondary">Cancelar/Volver</a>
 </form>
 
 <?php include("footer.php"); ?>

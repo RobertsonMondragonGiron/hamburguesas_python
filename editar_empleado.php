@@ -38,7 +38,7 @@ if(isset($_POST['guardar'])){
         <input type="text" name="cargo" class="form-control" value="<?= $empleado['cargo'] ?>" required>
     </div>
     <button name="guardar" class="btn btn-primary">Actualizar</button>
-    <a href="empleados.php" class="btn btn-secondary">Cancelar</a>
+    <a href="empleados.php" class="btn btn-secondary">Cancelar/Volver</a>
 </form>
 
 <?php include("footer.php"); ?>

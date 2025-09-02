@@ -1,7 +1,7 @@
 <?php
-// ===== ACTUALIZACIÓN: header.php (con reportes) =====
+
 ?>
-<!-- Separador para header.php actualizado -->
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -24,7 +24,7 @@
         <a href="clientes.php" class="btn btn-outline-light btn-sm me-1">👤 Clientes</a>
         <a href="empleados.php" class="btn btn-outline-light btn-sm me-1">👥 Empleados</a>
         <a href="tipo_hamburguesa.php" class="btn btn-outline-light btn-sm me-1">🍔 Hamburguesas</a>
-        <a href="productos.php" class="btn btn-outline-light btn-sm me-1">📦 Productos</a>
+        <a href="productos.php" class="btn btn-outline-light btn-sm me-1">📦 Ingredientes</a>
         <a href="ventas.php" class="btn btn-outline-light btn-sm me-1">📋 Ventas</a>
         <a href="reporte_ventas.php" class="btn btn-outline-info btn-sm me-1">📊 Reportes</a>
         <a href="nueva_venta.php" class="btn btn-warning btn-sm">➕ Nueva Venta</a>

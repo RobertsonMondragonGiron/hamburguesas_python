@@ -116,7 +116,7 @@ $stats_mes = $conn->query("SELECT COUNT(*) as ventas_mes, COALESCE(SUM(valor_tot
             <table class="table table-striped table-hover">
                 <thead class="table-secondary">
                     <tr>
-                        <th>ID</th>
+                        
                         <th>Cliente</th>
                         <th>Empleado</th>
                         <th>Fecha</th>
@@ -201,7 +201,7 @@ $stats_mes = $conn->query("SELECT COUNT(*) as ventas_mes, COALESCE(SUM(valor_tot
                         }
                         
                         echo "<tr>
-                                <td><span class='badge bg-secondary'>#{$row['id_venta']}</span></td>
+                                
                                 <td><strong>{$row['cliente']}</strong></td>
                                 <td>{$row['empleado']}</td>
                                 <td>".date('d/m/Y', strtotime($row['fecha']))."</td>

@@ -1,5 +1,5 @@
 <?php
-// ===== CORRECCIÓN: nuevo_cliente.php (mejorado con Bootstrap) =====
+
 include("config/db.php");
 include("header.php");
 ?>

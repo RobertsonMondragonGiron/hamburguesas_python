@@ -35,7 +35,7 @@ if(isset($_GET['eliminar'])){
             <table class="table table-striped table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
+                        
                         <th>Nombre</th>
                         <th>Stock</th>
                         <th>Estado</th>
@@ -72,7 +72,7 @@ if(isset($_GET['eliminar'])){
                         $puede_eliminar = $row['usado_en_hamburguesas'] == 0;
                         
                         echo "<tr>
-                                <td>{$row['id_producto']}</td>
+                               
                                 <td><strong>{$row['nombre']}</strong></td>
                                 <td class='$stock_class'>{$row['stock']}</td>
                                 <td>$stock_badge</td>

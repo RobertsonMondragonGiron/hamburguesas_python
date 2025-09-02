@@ -29,8 +29,8 @@
       <div class="card shadow-sm">
         <div class="card-body">
           <h5 class="card-title">📦 Inventario</h5>
-          <p>Control de insumos y productos disponibles.</p>
-          <a href="productos.php" class="btn btn-primary">Ver productos</a>
+          <p>Control de ingredientes disponibles.</p>
+          <a href="productos.php" class="btn btn-primary">Ver Ingredientes</a>
         </div>
       </div>
     </div>
