@@ -8,9 +8,13 @@ if(isset($_POST['procesar_venta'])){
     $empleado_id = (int)$_POST['empleado_id'];
     $items = json_decode($_POST['items_json'], true);
     $total = (float)$_POST['total'];
+    $monto_recibido = isset($_POST['monto_recibido']) ? (float)$_POST['monto_recibido'] : 0;
+    $cambio = $monto_recibido - $total; // Calcular el cambio aquí
     
     if(empty($items) || $total <= 0){
         echo "<div class='alert alert-danger'>❌ Error: No hay productos en el carrito o el total es inválido.</div>";
+    } else if($monto_recibido < $total) {
+        echo "<div class='alert alert-danger'>❌ Error: El monto recibido ($".number_format($monto_recibido, 2).") es menor que el total de la venta ($".number_format($total, 2).").</div>";
     } else {
         // VALIDAR STOCK ANTES DE PROCESAR
         $stock_errors = [];
@@ -41,7 +45,7 @@ if(isset($_POST['procesar_venta'])){
             // PROCESAR LA VENTA
             $conn->begin_transaction();
             try {
-                // 1. Insertar la venta
+                // 1. Insertar la venta (solo campos básicos)
                 $stmt_venta = $conn->prepare("INSERT INTO ventas (cliente_id, empleado_id, fecha, valor_total) VALUES (?, ?, NOW(), ?)");
                 $stmt_venta->bind_param("iid", $cliente_id, $empleado_id, $total);
                 $stmt_venta->execute();
@@ -93,20 +97,32 @@ if(isset($_POST['procesar_venta'])){
                 
                 $conn->commit();
                 
-                // Mostrar mensaje de éxito con detalle de ingredientes descontados
+                // Mostrar mensaje de éxito con detalle de pago
                 echo "<div class='alert alert-success'>
                         ✅ <strong>¡Venta procesada exitosamente!</strong><br>
                         📋 Venta #$venta_id por $".number_format($total, 2)."<br><br>
-                        <strong>📦 Ingredientes descontados del stock:</strong><br>";
+                        <div class='row'>
+                            <div class='col-md-6'>
+                                <strong>💰 Información de Pago:</strong><br>
+                                • Total: $".number_format($total, 2)."<br>
+                                • Recibido: $".number_format($monto_recibido, 2)."<br>
+                                • Cambio: <span class='text-primary fw-bold'>$".number_format($cambio, 2)."</span>
+                            </div>
+                            <div class='col-md-6'>
+                                <strong>📦 Ingredientes descontados:</strong><br>";
                 
                 foreach($ingredientes_usados as $ing_usado){
                     echo "• {$ing_usado['nombre']}: -{$ing_usado['cantidad']} unidades<br>";
                 }
                 
-                echo "<br>
-                      <a href='venta_detalle.php?id=$venta_id' class='btn btn-info mt-2'>👁️ Ver Detalle</a>
-                      <a href='ventas.php' class='btn btn-success mt-2 ms-2'>📋 Ver Todas las Ventas</a>
-                      <a href='productos.php' class='btn btn-warning mt-2 ms-2'>📦 Verificar Stock</a>
+                echo "          </div>
+                        </div><br>
+                        <div class='d-flex gap-2 flex-wrap'>
+                            <a href='venta_detalle.php?id=$venta_id' class='btn btn-info'>👁️ Ver Detalle</a>
+                            <a href='ventas.php' class='btn btn-success'>📋 Ver Todas las Ventas</a>
+                            <a href='productos.php' class='btn btn-warning'>📦 Verificar Stock</a>
+                            <button onclick='window.print()' class='btn btn-secondary'>🖨️ Imprimir Recibo</button>
+                        </div>
                       </div>";
                 
             } catch (Exception $e) {
@@ -223,6 +239,44 @@ if(isset($_POST['procesar_venta'])){
                     </table>
                 </div>
 
+                <!-- Sistema de Pago -->
+                <div id="pago_section" class="mt-4" style="display: none;">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">💰 Información de Pago - Solo Efectivo</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label"><strong>Total a Pagar:</strong></label>
+                                    <div class="form-control bg-light h4 text-success text-center" id="total_pagar_display">$0.00</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><strong>Monto Recibido:</strong></label>
+                                    <input type="number" id="monto_recibido" class="form-control form-control-lg text-center" 
+                                           placeholder="0.00" step="0.01" min="0">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><strong>Cambio a Entregar:</strong></label>
+                                    <div class="form-control bg-info text-white h5 text-center" id="cambio_display">$0.00</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botones de montos rápidos -->
+                            <div class="mt-3">
+                                <small class="text-muted"><strong>Montos rápidos:</strong></small><br>
+                                <div class="btn-group flex-wrap" role="group">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm monto-rapido" data-monto="10000">$10,000</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm monto-rapido" data-monto="20000">$20,000</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm monto-rapido" data-monto="50000">$50,000</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm monto-rapido" data-monto="100000">$100,000</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="monto-exacto">Monto Exacto</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Botones de acción -->
                 <div class="row mt-4">
                     <div class="col-md-6">
@@ -261,7 +315,7 @@ if(isset($_POST['procesar_venta'])){
             </div>
         </div>
 
-                <!-- Lista de hamburguesas disponibles -->
+        <!-- Lista de hamburguesas disponibles -->
         <div class="card">
             <div class="card-header bg-warning text-dark">
                 <h6 class="mb-0">🍔 Menú Disponible</h6>
@@ -361,6 +415,7 @@ if(isset($_POST['procesar_venta'])){
     <input type="hidden" name="empleado_id" id="form_empleado_id">
     <input type="hidden" name="items_json" id="form_items_json">
     <input type="hidden" name="total" id="form_total">
+    <input type="hidden" name="monto_recibido" id="form_monto_recibido">
     <input type="hidden" name="procesar_venta" value="1">
 </form>
 
@@ -387,6 +442,14 @@ const limpiarBtn = document.getElementById('limpiar_carrito');
 const procesarBtn = document.getElementById('procesar_venta');
 const clienteSelect = document.getElementById('cliente_id');
 const empleadoSelect = document.getElementById('empleado_id');
+
+// Elementos de pago
+const pagoSection = document.getElementById('pago_section');
+const totalPagarDisplay = document.getElementById('total_pagar_display');
+const montoRecibidoInput = document.getElementById('monto_recibido');
+const cambioDisplay = document.getElementById('cambio_display');
+const montosRapidos = document.querySelectorAll('.monto-rapido');
+const montoExacto = document.getElementById('monto-exacto');
 
 // Agregar producto al carrito
 agregarBtn.addEventListener('click', function() {
@@ -416,100 +479,8 @@ agregarBtn.addEventListener('click', function() {
         return;
     }
     
-    const nombre = selectedOption.text.split(' - 
-
-// Actualizar vista del carrito
-function actualizarCarrito() {
-    carritoTbody.innerHTML = '';
-    total = 0;
-    let totalItemsCount = 0;
-    
-    if(carrito.length === 0) {
-        carritoTbody.appendChild(carritoVacio.cloneNode(true));
-        carritoTotal.style.display = 'none';
-        limpiarBtn.disabled = true;
-        procesarBtn.disabled = true;
-    } else {
-        carrito.forEach((item, index) => {
-            total += item.subtotal;
-            totalItemsCount += item.cantidad;
-            
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><strong>${item.nombre}</strong></td>
-                <td class="text-center">
-                    <span class="badge bg-primary">${item.cantidad}</span>
-                </td>
-                <td class="text-end">$${item.precio.toFixed(2)}</td>
-                <td class="text-end"><strong>$${item.subtotal.toFixed(2)}</strong></td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarItem(${index})">🗑️</button>
-                </td>
-            `;
-            carritoTbody.appendChild(row);
-        });
-        
-        carritoTotal.style.display = 'table-row';
-        limpiarBtn.disabled = false;
-        procesarBtn.disabled = false;
-    }
-    
-    totalDisplay.textContent = '$' + total.toFixed(2);
-    totalResumen.textContent = '$' + total.toFixed(2);
-    totalItems.textContent = totalItemsCount;
-}
-
-// Eliminar item del carrito
-function eliminarItem(index) {
-    carrito.splice(index, 1);
-    actualizarCarrito();
-}
-
-// Limpiar carrito
-limpiarBtn.addEventListener('click', function() {
-    if(confirm('¿Limpiar todo el carrito?')) {
-        carrito = [];
-        actualizarCarrito();
-    }
-});
-
-// Procesar venta
-procesarBtn.addEventListener('click', function() {
-    const clienteId = clienteSelect.value;
-    const empleadoId = empleadoSelect.value;
-    
-    if(!clienteId) {
-        alert('Por favor selecciona un cliente');
-        clienteSelect.focus();
-        return;
-    }
-    
-    if(!empleadoId) {
-        alert('Por favor selecciona un empleado');
-        empleadoSelect.focus();
-        return;
-    }
-    
-    if(carrito.length === 0) {
-        alert('El carrito está vacío');
-        return;
-    }
-    
-    if(confirm(`¿Procesar venta por $${total.toFixed(2)}?`)) {
-        document.getElementById('form_cliente_id').value = clienteId;
-        document.getElementById('form_empleado_id').value = empleadoId;
-        document.getElementById('form_items_json').value = JSON.stringify(carrito);
-        document.getElementById('form_total').value = total.toFixed(2);
-        
-        document.getElementById('venta_form').submit();
-    }
-});
-
-// Inicialización
-actualizarCarrito();
-</script>
-
-<?php include("footer.php"); ?>)[0].split(' (máx:')[0];
+    // Extraer solo el nombre de la hamburguesa (antes del precio)
+    const nombre = selectedOption.text.split(' - $')[0].split(' (máx:')[0];
     const precio = parseFloat(selectedOption.dataset.precio);
     const subtotal = precio * cantidad;
 
@@ -541,8 +512,7 @@ document.querySelectorAll('.quick-add').forEach(btn => {
         const precio = parseFloat(this.dataset.precio);
         const nombre = this.dataset.nombre;
         
-        // Obtener stock disponible (necesitamos hacer una consulta AJAX para esto)
-        // Por simplicidad, vamos a permitir agregar 1 y validar en el servidor
+        // Verificar si ya existe en el carrito
         const existingIndex = carrito.findIndex(item => item.id === hamburguesaId);
         if(existingIndex >= 0){
             carrito[existingIndex].cantidad += 1;
@@ -571,6 +541,7 @@ function actualizarCarrito() {
     if(carrito.length === 0) {
         carritoTbody.appendChild(carritoVacio.cloneNode(true));
         carritoTotal.style.display = 'none';
+        pagoSection.style.display = 'none';
         limpiarBtn.disabled = true;
         procesarBtn.disabled = true;
     } else {
@@ -584,8 +555,8 @@ function actualizarCarrito() {
                 <td class="text-center">
                     <span class="badge bg-primary">${item.cantidad}</span>
                 </td>
-                <td class="text-end">$${item.precio.toFixed(2)}</td>
-                <td class="text-end"><strong>$${item.subtotal.toFixed(2)}</strong></td>
+                <td class="text-end">${item.precio.toFixed(2)}</td>
+                <td class="text-end"><strong>${item.subtotal.toFixed(2)}</strong></td>
                 <td class="text-center">
                     <button class="btn btn-sm btn-outline-danger" onclick="eliminarItem(${index})">🗑️</button>
                 </td>
@@ -594,14 +565,52 @@ function actualizarCarrito() {
         });
         
         carritoTotal.style.display = 'table-row';
+        pagoSection.style.display = 'block';
         limpiarBtn.disabled = false;
-        procesarBtn.disabled = false;
+        // No habilitamos procesarBtn aquí, lo hace calcularCambio()
     }
     
     totalDisplay.textContent = '$' + total.toFixed(2);
     totalResumen.textContent = '$' + total.toFixed(2);
+    totalPagarDisplay.textContent = '$' + total.toFixed(2);
     totalItems.textContent = totalItemsCount;
+    
+    // Recalcular cambio
+    calcularCambio();
 }
+
+// Calcular cambio
+function calcularCambio() {
+    const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+    const cambio = montoRecibido - total;
+    
+    console.log('Calculando cambio:', {
+        montoRecibido,
+        total,
+        cambio,
+        carritoLleno: carrito.length > 0
+    });
+    
+    if(cambio >= 0 && carrito.length > 0) {
+        cambioDisplay.textContent = '
+
+// Event listener para monto recibido
+montoRecibidoInput.addEventListener('input', calcularCambio);
+
+// Botones de montos rápidos
+montosRapidos.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const monto = parseFloat(this.dataset.monto);
+        montoRecibidoInput.value = monto.toFixed(2);
+        calcularCambio();
+    });
+});
+
+// Botón de monto exacto
+montoExacto.addEventListener('click', function() {
+    montoRecibidoInput.value = total.toFixed(2);
+    calcularCambio();
+});
 
 // Eliminar item del carrito
 function eliminarItem(index) {
@@ -613,6 +622,7 @@ function eliminarItem(index) {
 limpiarBtn.addEventListener('click', function() {
     if(confirm('¿Limpiar todo el carrito?')) {
         carrito = [];
+        montoRecibidoInput.value = '';
         actualizarCarrito();
     }
 });
@@ -621,6 +631,7 @@ limpiarBtn.addEventListener('click', function() {
 procesarBtn.addEventListener('click', function() {
     const clienteId = clienteSelect.value;
     const empleadoId = empleadoSelect.value;
+    const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
     
     if(!clienteId) {
         alert('Por favor selecciona un cliente');
@@ -639,11 +650,27 @@ procesarBtn.addEventListener('click', function() {
         return;
     }
     
-    if(confirm(`¿Procesar venta por $${total.toFixed(2)}?`)) {
+    if(montoRecibido <= 0) {
+        alert('Por favor ingresa el monto recibido');
+        montoRecibidoInput.focus();
+        return;
+    }
+    
+    if(montoRecibido < total) {
+        alert(`El monto recibido (${montoRecibido.toFixed(2)}) es menor que el total (${total.toFixed(2)})`);
+        montoRecibidoInput.focus();
+        return;
+    }
+    
+    const cambio = montoRecibido - total;
+    
+    if(confirm(`¿Procesar venta?\n\nTotal: ${total.toFixed(2)}\nRecibido: ${montoRecibido.toFixed(2)}\nCambio: ${cambio.toFixed(2)}`)) {
         document.getElementById('form_cliente_id').value = clienteId;
         document.getElementById('form_empleado_id').value = empleadoId;
         document.getElementById('form_items_json').value = JSON.stringify(carrito);
         document.getElementById('form_total').value = total.toFixed(2);
+        document.getElementById('form_monto_recibido').value = montoRecibido.toFixed(2);
+        document.getElementById('form_cambio').value = cambio.toFixed(2);
         
         document.getElementById('venta_form').submit();
     }
@@ -651,6 +678,251 @@ procesarBtn.addEventListener('click', function() {
 
 // Inicialización
 actualizarCarrito();
+
+// Permitir Enter en el campo de monto recibido
+montoRecibidoInput.addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') {
+        procesarBtn.click();
+    }
+});
+
+// Debug: Verificar que todos los elementos existen
+console.log('Elementos encontrados:', {
+    procesarBtn: !!procesarBtn,
+    clienteSelect: !!clienteSelect,
+    empleadoSelect: !!empleadoSelect,
+    montoRecibidoInput: !!montoRecibidoInput,
+    ventaForm: !!document.getElementById('venta_form')
+});
+
+// Debug: Agregar click alternativo al botón
+procesarBtn.onclick = function(e) {
+    console.log('Botón clickeado directamente');
+    e.preventDefault();
+    
+    const clienteId = clienteSelect.value;
+    const empleadoId = empleadoSelect.value;
+    const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+    
+    if(!clienteId || !empleadoId || carrito.length === 0 || montoRecibido <= 0 || montoRecibido < total) {
+        console.log('Validación fallida');
+        return;
+    }
+    
+    const cambio = montoRecibido - total;
+    
+    if(confirm(`¿Procesar venta?\n\nTotal: ${total.toFixed(2)}\nRecibido: ${montoRecibido.toFixed(2)}\nCambio: ${cambio.toFixed(2)}`)) {
+        document.getElementById('form_cliente_id').value = clienteId;
+        document.getElementById('form_empleado_id').value = empleadoId;
+        document.getElementById('form_items_json').value = JSON.stringify(carrito);
+        document.getElementById('form_total').value = total.toFixed(2);
+        document.getElementById('form_monto_recibido').value = montoRecibido.toFixed(2);
+        
+        document.getElementById('venta_form').submit();
+    }
+};
+</script>
+
+<?php include("footer.php"); ?> + cambio.toFixed(2);
+        cambioDisplay.className = 'form-control bg-success text-white h5 text-center';
+        procesarBtn.disabled = false;
+    } else if(montoRecibido > 0) {
+        cambioDisplay.textContent = '
+
+// Event listener para monto recibido
+montoRecibidoInput.addEventListener('input', calcularCambio);
+
+// Botones de montos rápidos
+montosRapidos.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const monto = parseFloat(this.dataset.monto);
+        montoRecibidoInput.value = monto.toFixed(2);
+        calcularCambio();
+    });
+});
+
+// Botón de monto exacto
+montoExacto.addEventListener('click', function() {
+    montoRecibidoInput.value = total.toFixed(2);
+    calcularCambio();
+});
+
+// Eliminar item del carrito
+function eliminarItem(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
+}
+
+// Limpiar carrito
+limpiarBtn.addEventListener('click', function() {
+    if(confirm('¿Limpiar todo el carrito?')) {
+        carrito = [];
+        montoRecibidoInput.value = '';
+        actualizarCarrito();
+    }
+});
+
+// Procesar venta
+procesarBtn.addEventListener('click', function() {
+    const clienteId = clienteSelect.value;
+    const empleadoId = empleadoSelect.value;
+    const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+    
+    if(!clienteId) {
+        alert('Por favor selecciona un cliente');
+        clienteSelect.focus();
+        return;
+    }
+    
+    if(!empleadoId) {
+        alert('Por favor selecciona un empleado');
+        empleadoSelect.focus();
+        return;
+    }
+    
+    if(carrito.length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+    
+    if(montoRecibido <= 0) {
+        alert('Por favor ingresa el monto recibido');
+        montoRecibidoInput.focus();
+        return;
+    }
+    
+    if(montoRecibido < total) {
+        alert(`El monto recibido (${montoRecibido.toFixed(2)}) es menor que el total (${total.toFixed(2)})`);
+        montoRecibidoInput.focus();
+        return;
+    }
+    
+    const cambio = montoRecibido - total;
+    
+    if(confirm(`¿Procesar venta?\n\nTotal: ${total.toFixed(2)}\nRecibido: ${montoRecibido.toFixed(2)}\nCambio: ${cambio.toFixed(2)}`)) {
+        document.getElementById('form_cliente_id').value = clienteId;
+        document.getElementById('form_empleado_id').value = empleadoId;
+        document.getElementById('form_items_json').value = JSON.stringify(carrito);
+        document.getElementById('form_total').value = total.toFixed(2);
+        document.getElementById('form_monto_recibido').value = montoRecibido.toFixed(2);
+        document.getElementById('form_cambio').value = cambio.toFixed(2);
+        
+        document.getElementById('venta_form').submit();
+    }
+});
+
+// Inicialización
+actualizarCarrito();
+
+// Permitir Enter en el campo de monto recibido
+montoRecibidoInput.addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') {
+        procesarBtn.click();
+    }
+});
+</script>
+
+<?php include("footer.php"); ?> + Math.abs(cambio).toFixed(2) + ' (Falta)';
+        cambioDisplay.className = 'form-control bg-danger text-white h5 text-center';
+        procesarBtn.disabled = true;
+    } else {
+        cambioDisplay.textContent = '$0.00';
+        cambioDisplay.className = 'form-control bg-info text-white h5 text-center';
+        procesarBtn.disabled = carrito.length === 0;
+    }
+}
+
+// Event listener para monto recibido
+montoRecibidoInput.addEventListener('input', calcularCambio);
+
+// Botones de montos rápidos
+montosRapidos.forEach(btn => {
+    btn.addEventListener('click', function() {
+        const monto = parseFloat(this.dataset.monto);
+        montoRecibidoInput.value = monto.toFixed(2);
+        calcularCambio();
+    });
+});
+
+// Botón de monto exacto
+montoExacto.addEventListener('click', function() {
+    montoRecibidoInput.value = total.toFixed(2);
+    calcularCambio();
+});
+
+// Eliminar item del carrito
+function eliminarItem(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
+}
+
+// Limpiar carrito
+limpiarBtn.addEventListener('click', function() {
+    if(confirm('¿Limpiar todo el carrito?')) {
+        carrito = [];
+        montoRecibidoInput.value = '';
+        actualizarCarrito();
+    }
+});
+
+// Procesar venta
+procesarBtn.addEventListener('click', function() {
+    const clienteId = clienteSelect.value;
+    const empleadoId = empleadoSelect.value;
+    const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+    
+    if(!clienteId) {
+        alert('Por favor selecciona un cliente');
+        clienteSelect.focus();
+        return;
+    }
+    
+    if(!empleadoId) {
+        alert('Por favor selecciona un empleado');
+        empleadoSelect.focus();
+        return;
+    }
+    
+    if(carrito.length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+    
+    if(montoRecibido <= 0) {
+        alert('Por favor ingresa el monto recibido');
+        montoRecibidoInput.focus();
+        return;
+    }
+    
+    if(montoRecibido < total) {
+        alert(`El monto recibido (${montoRecibido.toFixed(2)}) es menor que el total (${total.toFixed(2)})`);
+        montoRecibidoInput.focus();
+        return;
+    }
+    
+    const cambio = montoRecibido - total;
+    
+    if(confirm(`¿Procesar venta?\n\nTotal: ${total.toFixed(2)}\nRecibido: ${montoRecibido.toFixed(2)}\nCambio: ${cambio.toFixed(2)}`)) {
+        document.getElementById('form_cliente_id').value = clienteId;
+        document.getElementById('form_empleado_id').value = empleadoId;
+        document.getElementById('form_items_json').value = JSON.stringify(carrito);
+        document.getElementById('form_total').value = total.toFixed(2);
+        document.getElementById('form_monto_recibido').value = montoRecibido.toFixed(2);
+        document.getElementById('form_cambio').value = cambio.toFixed(2);
+        
+        document.getElementById('venta_form').submit();
+    }
+});
+
+// Inicialización
+actualizarCarrito();
+
+// Permitir Enter en el campo de monto recibido
+montoRecibidoInput.addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') {
+        procesarBtn.click();
+    }
+});
 </script>
 
 <?php include("footer.php"); ?>

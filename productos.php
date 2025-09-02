@@ -3,7 +3,7 @@ include("config/db.php");
 include("header.php");
 ?>
 
-<h2>📦 Productos</h2>
+<h2>📦 Ingrediente</h2>
 
 <?php
 
@@ -27,7 +27,7 @@ if(isset($_GET['eliminar'])){
 }
 ?>
 
-<a href="nuevo_producto.php" class="btn btn-success mb-3">➕ Nuevo Producto</a>
+<a href="nuevo_producto.php" class="btn btn-success mb-3">➕ Nuevo Ingrediente</a>
 
 <div class="card">
     <div class="card-body">

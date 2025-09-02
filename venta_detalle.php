@@ -34,7 +34,7 @@ endif;
 
 <!-- Información de la venta -->
 <div class="row mb-4">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">📄 Información de la Venta</h5>
@@ -63,17 +63,37 @@ endif;
         </div>
     </div>
     
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">💰 Resumen</h5>
+                <h5 class="mb-0">📅 Fecha y Hora</h5>
             </div>
             <div class="card-body">
                 <p><strong>📅 Fecha:</strong><br><?= date('d/m/Y', strtotime($venta['fecha'])) ?></p>
                 <p><strong>🕒 Hora:</strong><br><?= date('H:i:s', strtotime($venta['fecha'])) ?></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">💰 Información de Pago</h5>
+            </div>
+            <div class="card-body">
                 <p><strong>💵 Total:</strong><br>
-                    <span class="h4 text-success">$<?= number_format($venta['valor_total'], 2) ?></span>
+                    <span class="h5 text-success">$<?= number_format($venta['valor_total'], 2) ?></span>
                 </p>
+                <?php if(isset($venta['monto_recibido']) && $venta['monto_recibido'] > 0): ?>
+                    <p><strong>💸 Recibido:</strong><br>
+                        <span class="text-primary">$<?= number_format($venta['monto_recibido'], 2) ?></span>
+                    </p>
+                    <p><strong>💰 Cambio:</strong><br>
+                        <span class="text-info fw-bold">$<?= number_format($venta['cambio'] ?? 0, 2) ?></span>
+                    </p>
+                <?php else: ?>
+                    <small class="text-muted">Sin información de pago registrada</small>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -158,9 +178,74 @@ endif;
     </div>
 </div>
 
+<!-- Recibo de venta (para impresión) -->
+<?php if(isset($venta['monto_recibido']) && $venta['monto_recibido'] > 0): ?>
+<div class="card mt-4" id="recibo-impresion">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">🧾 Recibo de Venta</h5>
+    </div>
+    <div class="card-body">
+        <div class="text-center mb-3">
+            <h4>🍔 HAMBURGUESAS</h4>
+            <p class="mb-1">Sistema de Ventas</p>
+            <hr>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-6">
+                <strong>Venta #:</strong> <?= $id ?><br>
+                <strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($venta['fecha'])) ?><br>
+                <strong>Cliente:</strong> <?= $venta['cliente'] ?: 'N/A' ?><br>
+                <strong>Vendedor:</strong> <?= $venta['empleado'] ?: 'N/A' ?>
+            </div>
+            <div class="col-6 text-end">
+                <strong>RECIBO DE VENTA</strong><br>
+                <small>Solo Efectivo</small>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <table class="table table-sm">
+            <?php
+            // Reset para el recibo
+            $stmt_detalle->execute();
+            $detalle_result = $stmt_detalle->get_result();
+            while($detalle = $detalle_result->fetch_assoc()){
+                $precio_unitario = $detalle['subtotal'] / $detalle['cantidad'];
+                echo "<tr>
+                        <td>{$detalle['nombre']}</td>
+                        <td class='text-center'>{$detalle['cantidad']}</td>
+                        <td class='text-end'>$".number_format($precio_unitario, 2)."</td>
+                        <td class='text-end'>$".number_format($detalle['subtotal'], 2)."</td>
+                      </tr>";
+            }
+            ?>
+            <tr class="border-top">
+                <th colspan="3">SUBTOTAL:</th>
+                <th class="text-end">$<?= number_format($venta['valor_total'], 2) ?></th>
+            </tr>
+            <tr>
+                <th colspan="3">RECIBIDO:</th>
+                <th class="text-end">$<?= number_format($venta['monto_recibido'], 2) ?></th>
+            </tr>
+            <tr class="table-success">
+                <th colspan="3">CAMBIO:</th>
+                <th class="text-end">$<?= number_format($venta['cambio'], 2) ?></th>
+            </tr>
+        </table>
+        
+        <div class="text-center mt-3">
+            <hr>
+            <small>¡Gracias por su compra!</small>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Ingredientes utilizados -->
 <div class="card mt-4">
-    <div class="card-header bg-info text-white">
+    <div class="card-header bg-secondary text-white">
         <h5 class="mb-0">🥬 Ingredientes Utilizados</h5>
     </div>
     <div class="card-body">
@@ -215,24 +300,30 @@ endif;
 
 <!-- Acciones -->
 <div class="row mt-4">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <a href="ventas.php" class="btn btn-secondary btn-lg w-100">
             ⬅️ Volver a Ventas
         </a>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <button onclick="window.print()" class="btn btn-info btn-lg w-100">
             🖨️ Imprimir Recibo
         </button>
+    </div>
+    <div class="col-md-4">
+        <a href="nueva_venta.php" class="btn btn-success btn-lg w-100">
+            ➕ Nueva Venta
+        </a>
     </div>
 </div>
 
 <!-- Estilo para impresión -->
 <style>
 @media print {
-    .btn, .navbar, .alert { display: none !important; }
-    .card { border: 1px solid #000 !important; box-shadow: none !important; }
-    body { font-size: 12px; }
+    .btn, .navbar, .alert, .card:not(#recibo-impresion) { display: none !important; }
+    #recibo-impresion { border: 2px solid #000 !important; box-shadow: none !important; margin: 0 !important; }
+    body { font-size: 12px; margin: 0; }
+    .card-body { padding: 15px !important; }
 }
 </style>
 
