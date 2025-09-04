@@ -52,7 +52,7 @@ if(isset($_POST['procesar_venta'])){
             
             // Mensaje de éxito con información de pago (solo visual)
             echo "<div class='alert alert-success'>
-                    ✅ <strong>¡Venta #$venta_id procesada exitosamente!</strong>
+                    ✅ <strong>¡Proceso exitoso!</strong>
                     <div class='mt-3'>
                         <div class='row'>
                             <div class='col-md-4'>
@@ -71,9 +71,6 @@ if(isset($_POST['procesar_venta'])){
                     </div>
                     <div class='mt-3'>
                         <a href='venta_detalle.php?id=$venta_id' class='btn btn-info'>👁️ Ver Detalle</a>
-                        <a href='ventas.php' class='btn btn-success'>📋 Ver Ventas</a>
-                        <a href='nueva_venta.php' class='btn btn-primary'>➕ Nueva Venta</a>
-                        <button onclick='window.print()' class='btn btn-secondary'>🖨️ Imprimir</button>
                     </div>
                   </div>";
             
